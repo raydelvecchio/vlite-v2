@@ -31,6 +31,7 @@ search key-value database
 * Significantly less dependencies, and thus reduced install time
 * Can now set max sequence length for chunking for each independent memorize operation; great for more varied data
 across a given database
+* Can search by both vector OR text!
 * Important input types are now enforced
 * Can now define your own embedding model with a string in the `sentence_transformers` library to use internally
 * When chunking, removed default newline split return; the db will now chunk ANY text, even if it already contains
@@ -65,6 +66,7 @@ Main class for using the VLite2 database. Located in [main.py](vlite2/main.py). 
   * **metadata (dict)**: dictionary of metadata you want to associate with your entry
 * `retrieve`: retrieve data from the database given input text. embeds input text and retrieves from database via cosine similarity. Returns a dictinoary with keys "texts" and optionally "metadata" and "scores" for each result.
   * **text (str)**: the text you want to use to retrieve from the database
+  * **vector (np)**: the numpy array vector you want to use to retrieve from the database
   * **top_k (int)**: number of results you want to retrieve. default to 3
   * **autocut (bool)**: if we want to autocut our results or not. Will return the **top_k** *clusters* of results if this is true. More details on autocut above. Default to False.
   * **autocut_amount (int)**: if **autocut** is true, we retrieve **autocut_amount** of entries from the database instead of **top_k**. Default to 25.
