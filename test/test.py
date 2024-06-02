@@ -1,6 +1,7 @@
 import os
 import glob
 import sys
+import numpy as np
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 import unittest
 from vlite2 import VLite2
@@ -46,6 +47,18 @@ class TestVLite(unittest.TestCase):
         print(self.vlite.retrieve('Star Wars', top_k=3, autocut=True, get_metadata=True, get_similarities=True))
         print("[test_autocut] with 3 clusters")
 
+    def test_random_vector_retrieve(self):
+        self.vlite.ingest("Hello there", metadata={"test": "123"})
+        self.vlite.ingest("I am obi wan")
+        self.vlite.ingest("Ray Del Vecchio")
+        self.vlite.ingest("Ivan is cool")
+        self.vlite.ingest("What's up")
+        self.vlite.ingest("Testing these functions")
+        self.vlite.ingest("Vectors are lit")
+        self.vlite.ingest("Minecraft")
+        random_vector = np.random.rand(self.vlite._VLite2__embed_model.dimension).astype(np.float32)
+        print(self.vlite.retrieve(vector=random_vector, top_k=3))
+        print("[test_random_vector_retrieve] complete")
 
 if __name__ == '__main__':
     unittest.main(exit=False)

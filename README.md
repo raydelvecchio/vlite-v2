@@ -137,3 +137,6 @@ EmbeddingModel class used to embed text into vectors. Found in [model.py](vlite2
 # Future Improvements
 * Save `.info` and `.index` files in one, or better linking / state sharing between the two (hidden folder?)
 * Better system to tracking and incrementing ID
+
+# TODO:
+* Fix and improve chunking in embedding model! We already do this upon ingest; no need to do this in embedding model itself during search

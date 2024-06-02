@@ -48,6 +48,9 @@ class VLite2:
         if metadata and not isinstance(metadata, dict):
             raise TypeError("The 'metadata' argument must be a dict.")
 
+        if not text:
+            raise ValueError("Must input valid text, not null or empty values")
+
         chunks = chop_and_chunk(text, max_seq_length=max_seq_length)
         encoded_chunks = self.__embed_model.embed(texts=chunks, device=self.device)  # this is a numpy array, where each row is the vector for each chunk in chunks
         
@@ -65,20 +68,32 @@ class VLite2:
 
         return self.__document_id - 1
 
-    def retrieve(self, text: str, top_k: int = 3, autocut: bool = False, autocut_amount: int = 25, get_metadata: bool = False, get_similarities: bool = False, progress: bool = False) -> dict:
+    def retrieve(self, text: str = None, vector: np.ndarray = None, top_k: int = 3, autocut: bool = False, autocut_amount: int = 25, get_metadata: bool = False, get_similarities: bool = False, progress: bool = False) -> dict:
         """
-        Method to retrieve vectors given text. Will always return the text, and can specify what else
+        Method to retrieve vectors given text or a vector. Will always return the text, and can specify what else
         we want to return with the get_THING flag. If we set autocut=True, top_k will function as the number of
         CLUSTERS to return, not results. autocut_amount is how many items we run the autocut algorithm over.
         """
-        if not isinstance(text, str):
+        if text is not None and not isinstance(text, str):
             raise TypeError("The 'text' argument must be a string.")
+        if vector is not None and not isinstance(vector, np.ndarray):
+            raise TypeError("The 'vector' argument must be a numpy array.")
+        if vector is not None and vector.shape[0] != self.__embed_model.dimension:
+            raise ValueError(f"The 'vector' argument must have the size {self.__embed_model.dimension}.")
         if top_k <= 0:
             raise Exception("Please input k >= 1.")
+        
+        if text is None and vector is None:
+            raise ValueError("Must input either valid text or a vector, not null or empty values")
 
         count = autocut_amount if autocut else top_k  # sets the amount of elements we want to autocut over here
 
-        matches: Matches = self.__index.search(self.__embed_model.embed(texts=text, device=self.device), count=count, log=progress)
+        if text is not None:
+            query_vector = self.__embed_model.embed(texts=[text], device=self.device)[0]
+        else:
+            query_vector = vector
+
+        matches: Matches = self.__index.search(query_vector, count=count, log=progress)
         matches = matches.to_list()
 
         indices = [match[0] for match in matches]  # indices of the top matches used to retrieve the text and metadata
